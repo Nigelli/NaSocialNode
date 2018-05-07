@@ -16,5 +16,8 @@
     "jwt-simple": "^0.5.1",
     "mongoose": "^5.0.17",
     "npm": "^6.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.4"
   }
 }

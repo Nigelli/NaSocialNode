@@ -1,24 +1,35 @@
 var express = require('express');
 var cors = require('cors');
-var brcrypt = require('bcrypt-nodejs');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var jwt = require('jwt-simple');
 var app = express();
-
+var auth = require('./auth');
 var User = require('./models/User.js');
-
-var posts = [
-    { message: 'hello'},
-    { message: 'hi'}
-]
+var Post = require('./models/Post.js');
 
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get('/posts', (req, res) => {
+app.get('/posts/:id', async (req, res) => {
+    var author = req.params.id;
+    var posts = await Post.find({author});
     res.send(posts);
 });
+
+app.post('/post', (req, res) => {
+    postData = req.body;
+    postData.author = '5aef7c3abf2bf6de65f2e726';
+
+    var post = new Post(postData);
+
+    post.save((err, result) => {
+        if (err) {
+            console.error('error saving post');
+            return res.sendStatus(500).send({message: 'error saving post'});
+        }
+        res.sendStatus(200);
+    })
+})
 
 app.get('/users', async (req, res) => {
     try {
@@ -43,42 +54,14 @@ app.get('/profile/:id', async (req, res) => {
     }
 });
 
-app.post('/register', (req, res) => {
-    var userData = req.body;
-    var user = new User(userData);
-    user.save((err, result) => {
-        if (err) {
-            console.log('error saving user');
-            res.sendStatus(500);
-        }
-        res.sendStatus(200);
-    })
-});
 
-app.post('/login', async (req, res) => {
-    var loginData = req.body;
-
-    var user = await User.findOne({ email: loginData.email });
-
-    if (!user)
-        return res.status(401).send({ message: 'Email or Password is invalid' });
-
-    brcrypt.compare(loginData.password, user.password, (err, isMatch) => {
-        if (isMatch) {
-            return res.status(401).send({ message: 'Email or Password is invalid' });
-        }
-        var payload = {};
-        var token = jwt.encode(payload, '123');
-    
-        res.status(200).send({token});
-    })
-    
-});
 
 mongoose.connect('mongodb://test:test@ds119268.mlab.com:19268/angularapp101', (err) => {
     if (!err) {
         console.log('connected to database');
     }
 });
+
+app.use('/auth', auth);
 
 app.listen(3000);
