@@ -10,14 +10,19 @@ var Post = require('./models/Post.js');
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static('dist'))
 
-app.get('/posts/:id', async (req, res) => {
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/dist/index.html');
+})
+
+app.get('/api/posts/:id', async (req, res) => {
     var author = req.params.id;
     var posts = await Post.find({author});
     res.send(posts);
 });
 
-app.post('/post', auth.checkAuthenticated, (req, res) => {
+app.post('/api/post', auth.checkAuthenticated, (req, res) => {
     postData = req.body;
     postData.author = req.userId;
 
@@ -32,7 +37,7 @@ app.post('/post', auth.checkAuthenticated, (req, res) => {
     })
 })
 
-app.get('/users', async (req, res) => {
+app.get('/api/users', async (req, res) => {
     try {
         var users = await User.find({}, '-password -__v');
         res.send(users);
@@ -43,7 +48,7 @@ app.get('/users', async (req, res) => {
     }
 });
 
-app.get('/profile/:id', async (req, res) => {
+app.get('/api/profile/:id', async (req, res) => {
     try {
         var user = await User.findById(req.params.id, '-password -__v');
         
@@ -55,12 +60,17 @@ app.get('/profile/:id', async (req, res) => {
     }
 });
 
+app.use('/auth', auth.router);
+
+app.get('*', (req, res) => {
+    res.sendFile(__dirname + '/dist/index.html');
+})
+
 mongoose.connect('mongodb://test:test@ds119268.mlab.com:19268/angularapp101', (err) => {
     if (!err) {
         console.log('connected to database');
     }
 });
 
-app.use('/auth', auth.router);
 
 app.listen(process.env.PORT || 3000);
