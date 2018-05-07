@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var app = express();
 var auth = require('./auth');
+var jwt = require('jwt-simple');
 var User = require('./models/User.js');
 var Post = require('./models/Post.js');
 
@@ -16,9 +17,9 @@ app.get('/posts/:id', async (req, res) => {
     res.send(posts);
 });
 
-app.post('/post', (req, res) => {
+app.post('/post', auth.checkAuthenticated, (req, res) => {
     postData = req.body;
-    postData.author = '5aef7c3abf2bf6de65f2e726';
+    postData.author = req.userId;
 
     var post = new Post(postData);
 
@@ -54,14 +55,12 @@ app.get('/profile/:id', async (req, res) => {
     }
 });
 
-
-
 mongoose.connect('mongodb://test:test@ds119268.mlab.com:19268/angularapp101', (err) => {
     if (!err) {
         console.log('connected to database');
     }
 });
 
-app.use('/auth', auth);
+app.use('/auth', auth.router);
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
