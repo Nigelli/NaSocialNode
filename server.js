@@ -66,7 +66,7 @@ app.get('*', (req, res) => {
     res.sendFile(__dirname + '/dist/index.html');
 })
 
-mongoose.connect('mongodb://test:test@ds119268.mlab.com:19268/angularapp101', (err) => {
+mongoose.connect('mongodb://production:yK9HU4gzXkrDZL3sgd4fXfCUvz7g3rSExkTJbH3FtAkXrT8WrDGFhLMcA8Ns2yFc@ds119268.mlab.com:19268/angularapp101', (err) => {
     if (!err) {
         console.log('connected to database');
     }
