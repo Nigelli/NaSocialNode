@@ -7,7 +7,11 @@ var auth = require('./auth');
 var jwt = require('jwt-simple');
 var User = require('./models/User.js');
 var Post = require('./models/Post.js');
-
+// Dev env only 
+if (process.env.environment == 'dev') {
+    var morgan = require('morgan');
+    app.use(morgan("dev"));
+}
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('dist'))
@@ -65,8 +69,8 @@ app.use('/auth', auth.router);
 app.get('*', (req, res) => {
     res.sendFile(__dirname + '/dist/index.html');
 })
-
-mongoose.connect('mongodb://production:yK9HU4gzXkrDZL3sgd4fXfCUvz7g3rSExkTJbH3FtAkXrT8WrDGFhLMcA8Ns2yFc@ds119268.mlab.com:19268/angularapp101', (err) => {
+console.log(process.env)
+mongoose.connect(`mongodb://${process.env.dbusername}:${process.env.dbpassword}@ds119268.mlab.com:19268/angularapp101`, (err) => {
     if (!err) {
         console.log('connected to database');
     }
